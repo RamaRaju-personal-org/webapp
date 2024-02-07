@@ -93,3 +93,6 @@ sudo /usr/local/mysql/support-files/mysql.server restart
 ```bash
 file rewrite
 ```
+```bash
+updating readme again for testing the merge conflicts
+```
