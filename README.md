@@ -91,5 +91,5 @@ sudo pkill mysqld
 sudo /usr/local/mysql/support-files/mysql.server restart
 ```
 ```bash
-line added by me
+file rewrite
 ```
