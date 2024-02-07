@@ -91,5 +91,7 @@ sudo pkill mysqld
 sudo /usr/local/mysql/support-files/mysql.server restart
 ```
 ```bash
+
 random stuff
+
 ```
