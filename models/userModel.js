@@ -1,4 +1,3 @@
-// userModel.js
 const { Sequelize, DataTypes } = require('sequelize');
 const bcrypt = require('bcrypt');
 const { initializeDatabase } = require('./mysql-db-connect');
@@ -22,6 +21,12 @@ const userModelPromise = initializeDatabase().then(sequelize => {
             type: DataTypes.STRING,
             allowNull: false,
             unique: true,
+            validate: {
+                is: {
+                    args: [/^[^@]+@(example\.com|gmail\.com|outlook\.com|.+\.edu)$/i],
+                    msg: "Username must be a valid email ending with @example.com, @gmail.com, @outlook.com, or any .edu domain"
+                }
+            },
         },
         password: {
             type: DataTypes.STRING,
@@ -33,16 +38,16 @@ const userModelPromise = initializeDatabase().then(sequelize => {
             },
         },
     }, {
-        timestamps: true, // Enable timestamp fields (createdAt, updatedAt)
+        timestamps: true, 
     });
 
-    // Sync the model with the database, creating the table if it doesn't exist
-    sequelize.sync().then(() => console.log('User table has been successfully created, if one doesn\'t exist'));
+    sequelize.sync().then(() => console.log('User table has been successfully created, if one doesn\'t exist'))
+    .catch(error => console.error('Error creating table:', error));
 
     return User;
 }).catch(error => {
     console.error('Error during User model initialization:', error);
-    throw error; // Rethrow to handle it appropriately (e.g., halt the application if necessary)
+    throw error; 
 });
 
 module.exports = userModelPromise;

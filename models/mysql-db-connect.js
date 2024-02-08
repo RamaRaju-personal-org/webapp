@@ -1,10 +1,8 @@
-// Filename: mysql-db-connect.js
-
 const dotenv = require('dotenv');
 dotenv.config();
 const Sequelize = require('sequelize');
 
-let databaseInitialized = false; // Prevent multiple initializations
+let databaseInitialized = false; 
 
 async function initializeDatabase() {
   if (databaseInitialized) {
@@ -43,7 +41,7 @@ async function initializeDatabase() {
     return sequelize;
   } catch (error) {
     console.error('Unable to initialize the database:', error);
-    process.exit(1); // Consider more graceful error handling for production
+    process.exit(1); 
   }
 }
 
