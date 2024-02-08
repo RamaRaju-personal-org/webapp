@@ -1,39 +1,42 @@
-// user.js
 const express = require('express');
 const userModelPromise = require('../../models/userModel');
 const authenticateBasic = require('../../middleware/base64');
 
 const router = express.Router();
 
-// Register a new user
+const usernameRegex = /^[^@]+@(example\.com|gmail\.com|outlook\.com|.+\.edu)$/i;
+
 router.post('/', async (req, res) => {
     try {
+        const { username } = req.body;
+        if (!usernameRegex.test(username)) {
+            return res.status(400).json({ error: 'Username must end with @example.com, @gmail.com, @outlook.com, or any .edu domain.' });
+        }
+
         const User = await userModelPromise;
-        const existingUser = await User.findOne({ where: { username: req.body.username } });
+        const existingUser = await User.findOne({ where: { username } });
         if (existingUser) {
             return res.status(400).json({ error: 'User with this username already exists' });
         }
 
-        // The password hashing is handled in the model's setter
-        const newUser = await User.create({
-            first_name: req.body.first_name,
-            last_name: req.body.last_name,
-            username: req.body.username,
-            password: req.body.password,
-        });
+        const newUser = await User.create(req.body);
 
         const userWithoutPassword = { ...newUser.get({ plain: true }) };
         delete userWithoutPassword.password;
 
         res.status(201).json(userWithoutPassword);
     } catch (error) {
-        next(error);
+        res.status(503).json({ error: 'Service Unavailable' });
     }
 });
 
-// Update existing user's information
 router.put('/self', authenticateBasic, async (req, res) => {
     try {
+        const { username } = req.body;
+        if (username && !usernameRegex.test(username)) {
+            return res.status(400).json({ error: 'Username must end with @example.com, @gmail.com, @outlook.com, or any .edu domain.' });
+        }
+
         if (Object.keys(req.body).length === 0) {
             return res.status(204).end();
         }
@@ -53,22 +56,20 @@ router.put('/self', authenticateBasic, async (req, res) => {
 
         res.json(updatedUserWithoutPassword);
     } catch (error) {
-        next(error);
+        res.status(503).json({ error: 'Service Unavailable' });
     }
 });
 
-// Retrieve authenticated user's information
 router.get('/self', authenticateBasic, async (req, res) => {
     try {
         const userWithoutPassword = { ...req.user.get({ plain: true }) };
         delete userWithoutPassword.password;
         res.json(userWithoutPassword);
     } catch (error) {
-        next(error);
+        res.status(503).json({ error: 'Service Unavailable' });
     }
 });
 
-// Catch-all for unsupported routes
 router.all('*', (req, res) => {
     res.status(404).json({ error: 'Not Found' });
 });

@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const sequelize = require("../../models/sequelize"); // Adjust this path to where your Sequelize instance is exported
+const sequelize = require("../../models/sequelize"); 
 const checkPayload = require("../../middleware/checkPayload");
 const checkQueryParams = require("../../middleware/checkQueryParams");
 
@@ -10,7 +10,7 @@ router.head("/", (req, res) => {
 
 router.get("/", checkQueryParams, checkPayload, async (req, res) => {
     try {
-        await sequelize.authenticate(); // Directly use the Sequelize instance to check the connection
+        await sequelize.authenticate(); 
         res.setHeader('cache-control', 'no-cache');
         res.status(200).json({ status: "OK" });
     } catch (error) {

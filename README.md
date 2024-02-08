@@ -4,7 +4,7 @@ npm init
 ```
 # Installing pacakges, ORM & database driver
 ```bash
-npm i mysql express nodemon sequelize mysql2 dotenv crypto   
+npm i mysql express  sequelize mysql2 dotenv    
 
 npm install --save-dev jest supertest
 ```
@@ -90,14 +90,69 @@ sudo pkill mysqld
 ```bash
 sudo /usr/local/mysql/support-files/mysql.server restart
 ```
+# User Creation (POST)
 ```bash
-file rewrite
+/v1/user
 ```
+# Get & put for authenticated users only
 ```bash
-updating readme again for testing the merge conflicts
+/v1/user/self
 ```
 
-
+# Webapp Demo on Centos
+## SCP the ziped application code to centos 
 ```bash
-testing it 2nd time
+scp -i /path/to/your-ssh-private-key /path/to/your-file.zip centos@droplet-ip:/root
+```
+
+## SSH into the centos machine
+```bash
+#change the key permission
+chmod 600 /path/to/your-private-key 
+
+# ssh using private key
+ssh -i /path/to/your-private-key root@droplet-ip
+
+```
+# Unzip the application &  install mysql
+```bash
+sudo dnf install unzip
+unzip path/to/your-file.zip
+# create the dotenv file for your app in the vm
+# install mysql
+sudo yum install wget
+
+sudo wget https://dev.mysql.com/get/mysql80-community-release-el7-3.noarch.rpm
+
+sudo rpm -Uvh mysql80-community-release-el7-3.noarch.rpm
+
+sudo yum install mysql-server
+
+sudo systemctl start mysqld
+
+sudo systemctl enable mysqld
+
+# give your db credentials
+sudo mysql_secure_installation
+
+mysql --version
+
+mysql -u root -p
+```
+# Install node js 
+```bash
+curl -sL https://rpm.nodesource.com/setup_16.x | sudo bash -
+
+sudo yum install -y nodejs
+
+node --version
+
+```
+## Note : 
+```bash
+Enable port on which your application runs & give ssh access only to your ip in firewall settings of ypur vm
+```
+# query the table
+```bash
+SELECT * FROM restapi.Users;
 ```
