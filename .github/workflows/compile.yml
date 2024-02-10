@@ -53,5 +53,5 @@ jobs:
       - name: Test App
         run: npm test
 
-      - name: Test failure 
-        run: exit 1
+      # - name: Test failure 
+      #   run: exit 1
