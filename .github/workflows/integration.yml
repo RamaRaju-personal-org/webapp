@@ -1,0 +1,56 @@
+name: integration test
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: integration test
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+          MYSQL_DATABASE: ${{ secrets.DB_NAME }}
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 14 
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: npm-deps-${{ hashFiles('**/package-lock.json') }} 
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Setup .env file
+        run: |
+          echo "DB_USER=${{ secrets.DB_USER }}" >> .env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+          echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
+          echo "DB_HOST=${{ secrets.DB_HOST }}" >> .env
+          echo "PORT=${{ secrets.PORT }}" >> .env
+          echo "TOKEN_SECRET=${{ secrets.TOKEN_SECRET}}" >> .env
+
+      - name: Wait for MySQL
+        run: until mysqladmin ping -h "127.0.0.1" --silent; do sleep 1; done
+
+      - name: Test App
+        run: npm test user.test.js
+
+     
