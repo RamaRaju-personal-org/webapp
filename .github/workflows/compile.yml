@@ -61,7 +61,7 @@ jobs:
       - name: Test App
         run: npm test healthz.test.js
 
-      # - name: Test failure 
+      # - name: Test failure .
       #   run: exit 1
   test:
     name: integration test
