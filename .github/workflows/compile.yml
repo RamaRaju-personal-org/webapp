@@ -10,16 +10,7 @@ jobs:
     name: Complie check
     runs-on: ubuntu-latest
 
-    # services:
-    #   mysql:
-    #     image: mysql:5.7
-    #     env:
-    #       MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
-    #       MYSQL_DATABASE: ${{ secrets.DB_NAME }}
-    #     ports:
-    #       - 3306:3306
-    #     options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=5
-
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -47,8 +38,6 @@ jobs:
           echo "PORT=${{ secrets.PORT }}" >> .env
           echo "TOKEN_SECRET=${{ secrets.TOKEN_SECRET}}" >> .env
 
-      # - name: Wait for MySQL
-      #   run: until mysqladmin ping -h "127.0.0.1" --silent; do sleep 1; done
 
       - name: Configure MySQL
         run: |
@@ -56,26 +45,17 @@ jobs:
           sudo apt-get install -y curl
           sudo systemctl start mysql
           sudo systemctl status mysql
-          mysql -u root -p"${{ secrets.MYSQL_ROOT_PASSWORD }}" -e "CREATE DATABASE  restapi;"
 
       - name: Test App
         run: npm test healthz.test.js
 
       # - name: Test failure .
       #   run: exit 1
+  
   test:
     name: integration test
     runs-on: ubuntu-latest
 
-    services:
-      mysql:
-        image: mysql:5.7
-        env:
-          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
-          MYSQL_DATABASE: ${{ secrets.DB_NAME }}
-        ports:
-          - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=5
 
     steps:
       - name: Checkout code
@@ -104,8 +84,13 @@ jobs:
           echo "PORT=${{ secrets.PORT }}" >> .env
           echo "TOKEN_SECRET=${{ secrets.TOKEN_SECRET}}" >> .env
 
-      - name: Wait for MySQL
-        run: until mysqladmin ping -h "127.0.0.1" --silent; do sleep 1; done
+      - name: Configure MySQL
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y curl
+          sudo systemctl start mysql
+          sudo systemctl status mysql
+
 
       - name: Test App
         run: npm test user.test.js
