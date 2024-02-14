@@ -152,7 +152,7 @@ node --version
 ```bash
 Enable port on which your application runs & give ssh access only to your ip in firewall settings of ypur vm
 ```
-# query the table.
+# query the table..
 ```bash
 SELECT * FROM restapi.Users;
 ```
