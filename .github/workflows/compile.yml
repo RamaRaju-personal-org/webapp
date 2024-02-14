@@ -13,11 +13,11 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 14 
+          node-version: 14
 
       - name: Cache dependencies
         uses: actions/cache@v3
@@ -42,19 +42,30 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y mysql-server
 
+      - name: Configure MySQL root user for subsequent operations
+        run: |
+          sudo mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '${{ secrets.MYSQL_ROOT_PASSWORD }}'; FLUSH PRIVILEGES;"
+
       - name: Start MySQL service
         run: |
           sudo systemctl start mysql
 
+      - name: Wait for MySQL to be ready
+        run: |
+          until sudo mysqladmin ping --silent; do
+              echo 'Waiting for MySQL to be ready...'
+              sleep 1
+          done
+
       - name: Create Database
         run: |
-          sudo mysql -e "CREATE DATABASE restapi;"
+          mysql -u root -p${{ secrets.MYSQL_ROOT_PASSWORD }} -e "CREATE DATABASE IF NOT EXISTS restapi;"
 
       - name: Configure MySQL user and privileges
         run: |
-          sudo mysql -e "CREATE USER '${{ secrets.DB_USER }}'@'localhost' IDENTIFIED BY '${{ secrets.DB_PASSWORD }}';"
-          sudo mysql -e "GRANT ALL PRIVILEGES ON restapi.* TO '${{ secrets.DB_USER }}'@'localhost';"
-          sudo mysql -e "FLUSH PRIVILEGES;"
+          mysql -u root -p${{ secrets.MYSQL_ROOT_PASSWORD }} -e "CREATE USER IF NOT EXISTS '${{ secrets.DB_USER }}'@'localhost' IDENTIFIED BY '${{ secrets.DB_PASSWORD }}';"
+          mysql -u root -p${{ secrets.MYSQL_ROOT_PASSWORD }} -e "GRANT ALL PRIVILEGES ON restapi.* TO '${{ secrets.DB_USER }}'@'localhost';"
+          mysql -u root -p${{ secrets.MYSQL_ROOT_PASSWORD }} -e "FLUSH PRIVILEGES;"
 
       - name: Test App
         run: npm test healthz.test.js
@@ -66,11 +77,11 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 14 
+          node-version: 14
 
       - name: Cache dependencies
         uses: actions/cache@v3
@@ -81,7 +92,7 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Setup .env file
+      - name: Setup .env file (Repeat for Integration Tests)
         run: |
           echo "DB_USER=${{ secrets.DB_USER }}" >> .env
           echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
@@ -90,15 +101,8 @@ jobs:
           echo "PORT=${{ secrets.PORT }}" >> .env
           echo "TOKEN_SECRET=${{ secrets.TOKEN_SECRET }}" >> .env
 
-      - name: Install MySQL (Repeat Setup for Integration Tests)
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y mysql-server
-          sudo systemctl start mysql
-          sudo mysql -e "CREATE DATABASE IF NOT EXISTS restapi;"
-          sudo mysql -e "CREATE USER IF NOT EXISTS '${{ secrets.DB_USER }}'@'localhost' IDENTIFIED BY '${{ secrets.DB_PASSWORD }}';"
-          sudo mysql -e "GRANT ALL PRIVILEGES ON restapi.* TO '${{ secrets.DB_USER }}'@'localhost';"
-          sudo mysql -e "FLUSH PRIVILEGES;"
+      # Assuming MySQL setup remains valid from the 'build' job, you may not need to repeat MySQL setup here.
+      # If this job runs on a separate runner or needs its own MySQL setup, repeat the MySQL installation and configuration steps here.
 
-      - name: Test App
+      - name: Test App (Integration Tests)
         run: npm test user.test.js
