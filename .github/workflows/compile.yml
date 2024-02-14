@@ -17,7 +17,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 14
+          node-version: '14'
 
       - name: Cache dependencies
         uses: actions/cache@v3
@@ -41,15 +41,20 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y mysql-server
-          sudo mysql_secure_installation skip
 
       - name: Start MySQL service
         run: |
-          sudo systemctl start mysql.service
+          sudo systemctl start mysql
+          sudo systemctl status mysql
 
-      - name: Verify MySQL is running
+      - name: Apply security enhancements
         run: |
-          sudo systemctl status mysql.service
+          sudo mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '${{ secrets.MYSQL_ROOT_PASSWORD }}';"
+          sudo mysql -e "DELETE FROM mysql.user WHERE User='';"
+          sudo mysql -e "DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');"
+          sudo mysql -e "DROP DATABASE IF EXISTS test;"
+          sudo mysql -e "DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%';"
+          sudo mysql -e "FLUSH PRIVILEGES;"
 
       - name: Setup MySQL Database and User
         run: |
@@ -60,6 +65,7 @@ jobs:
 
       - name: Test App
         run: npm test healthz.test.js
+
 
 
   test:
