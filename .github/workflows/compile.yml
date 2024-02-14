@@ -6,60 +6,65 @@ on:
       - main
 
 jobs:
-  setup-mysql:
+  build:
+    name: Compile check
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      
-      - name: Install MySQL Server
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '14'
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: npm-deps-${{ hashFiles('**/package-lock.json') }}
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Setup .env file
+        run: |
+          echo "DB_USER=ram" >> .env
+          echo "DB_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}" >> .env
+          echo "DB_NAME=restapi" >> .env
+          echo "DB_HOST=127.0.0.1" >> .env
+          echo "PORT=${{ secrets.PORT }}" >> .env
+          echo "TOKEN_SECRET=${{ secrets.TOKEN_SECRET }}" >> .env
+
+      - name: Install MySQL
         run: |
           sudo apt-get update
           sudo apt-get install -y mysql-server
-
-      - name: Start MySQL Service
-        run: |
           sudo systemctl start mysql
-          sudo systemctl status mysql
 
-      - name: Verify MySQL Root Access (Without Password)
-        run: |
-          sudo mysql -e "SELECT user, authentication_string, plugin, host FROM mysql.user;"
-
-      - name: Configure Root User for Password Authentication (Optional)
-        run: |
-          sudo mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '${{ secrets.MYSQL_ROOT_PASSWORD }}';"
-          sudo mysql -e "FLUSH PRIVILEGES;"
-
-      - name: Delete Anonymous Users
-        run: |
-          sudo mysql -e "DELETE FROM mysql.user WHERE User='';"
-          sudo mysql -e "FLUSH PRIVILEGES;"
-
-      - name: Disallow Remote Root Access
-        run: |
-          sudo mysql -e "DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');"
-          sudo mysql -e "FLUSH PRIVILEGES;"
-
-      - name: Drop Test Database
-        run: |
-          sudo mysql -e "DROP DATABASE IF EXISTS test;"
-          sudo mysql -e "FLUSH PRIVILEGES;"
-
-      - name: Create Application Database
+      - name: Create Application Database and User
         run: |
           sudo mysql -e "CREATE DATABASE IF NOT EXISTS restapi;"
-
-      - name: Create Application User and Grant Privileges
-        run: |
-          sudo mysql -e "CREATE USER IF NOT EXISTS '${{ secrets.DB_USER }}'@'localhost' IDENTIFIED BY '${{ secrets.DB_PASSWORD }}';"
-          sudo mysql -e "GRANT ALL PRIVILEGES ON restapi.* TO '${{ secrets.DB_USER }}'@'localhost';"
+          sudo mysql -e "CREATE USER 'ram'@'localhost' IDENTIFIED BY '${{ secrets.MYSQL_ROOT_PASSWORD }}';"
+          sudo mysql -e "GRANT ALL PRIVILEGES ON restapi.* TO 'ram'@'localhost';"
           sudo mysql -e "FLUSH PRIVILEGES;"
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
 
+      - name: Verify User Creation
+        run: |
+          sudo mysql -e "SELECT user, host FROM mysql.user WHERE user = 'ram';"
+
+      - name: Verify Database Creation
+        run: |
+          sudo mysql -e "SHOW DATABASES LIKE 'restapi';"
+
+      - name: Wait for MySQL
+        run: until mysqladmin ping -h "127.0.0.1" --silent; do sleep 1; done
 
       - name: Test App
         run: npm test healthz.test.js
-
 
 
   test:
