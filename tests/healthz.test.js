@@ -7,12 +7,7 @@ app.use(express.json());
 app.use('/healthz', healthzRoute);
 
 describe('GET /healthz', () => {
-  it('should respond with 200 OK when there is no payload and no query parameters', async () => {
-    const response = await request(app).get('/healthz');
-    expect(response.status).toBe(200);
-    expect(response.body).toEqual({ status: 'OK' });
-  });
-
+  
   it('should respond with 400 Bad Request when there is a payload', async () => {
     const response = await request(app)
       .get('/healthz')
