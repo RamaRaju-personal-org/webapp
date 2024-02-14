@@ -7,10 +7,9 @@ on:
 
 jobs:
   build:
-    name: Complie check
+    name: Compile check
     runs-on: ubuntu-latest
 
-    
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -24,7 +23,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.npm
-          key: npm-deps-${{ hashFiles('**/package-lock.json') }} 
+          key: npm-deps-${{ hashFiles('**/package-lock.json') }}
 
       - name: Install dependencies
         run: npm install
@@ -36,26 +35,33 @@ jobs:
           echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
           echo "DB_HOST=${{ secrets.DB_HOST }}" >> .env
           echo "PORT=${{ secrets.PORT }}" >> .env
-          echo "TOKEN_SECRET=${{ secrets.TOKEN_SECRET}}" >> .env
+          echo "TOKEN_SECRET=${{ secrets.TOKEN_SECRET }}" >> .env
 
-
-      - name: Configure MySQL
+      - name: Install MySQL
         run: |
           sudo apt-get update
-          sudo apt-get install -y curl
+          sudo apt-get install -y mysql-server
+
+      - name: Start MySQL service
+        run: |
           sudo systemctl start mysql
-          sudo systemctl status mysql
+
+      - name: Create Database
+        run: |
+          sudo mysql -e "CREATE DATABASE restapi;"
+
+      - name: Configure MySQL user and privileges
+        run: |
+          sudo mysql -e "CREATE USER '${{ secrets.DB_USER }}'@'localhost' IDENTIFIED BY '${{ secrets.DB_PASSWORD }}';"
+          sudo mysql -e "GRANT ALL PRIVILEGES ON restapi.* TO '${{ secrets.DB_USER }}'@'localhost';"
+          sudo mysql -e "FLUSH PRIVILEGES;"
 
       - name: Test App
         run: npm test healthz.test.js
 
-      # - name: Test failure .
-      #   run: exit 1
-  
   test:
-    name: integration test
+    name: Integration test
     runs-on: ubuntu-latest
-
 
     steps:
       - name: Checkout code
@@ -70,7 +76,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.npm
-          key: npm-deps-${{ hashFiles('**/package-lock.json') }} 
+          key: npm-deps-${{ hashFiles('**/package-lock.json') }}
 
       - name: Install dependencies
         run: npm install
@@ -82,15 +88,17 @@ jobs:
           echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
           echo "DB_HOST=${{ secrets.DB_HOST }}" >> .env
           echo "PORT=${{ secrets.PORT }}" >> .env
-          echo "TOKEN_SECRET=${{ secrets.TOKEN_SECRET}}" >> .env
+          echo "TOKEN_SECRET=${{ secrets.TOKEN_SECRET }}" >> .env
 
-      - name: Configure MySQL
+      - name: Install MySQL (Repeat Setup for Integration Tests)
         run: |
           sudo apt-get update
-          sudo apt-get install -y curl
+          sudo apt-get install -y mysql-server
           sudo systemctl start mysql
-          sudo systemctl status mysql
-
+          sudo mysql -e "CREATE DATABASE IF NOT EXISTS restapi;"
+          sudo mysql -e "CREATE USER IF NOT EXISTS '${{ secrets.DB_USER }}'@'localhost' IDENTIFIED BY '${{ secrets.DB_PASSWORD }}';"
+          sudo mysql -e "GRANT ALL PRIVILEGES ON restapi.* TO '${{ secrets.DB_USER }}'@'localhost';"
+          sudo mysql -e "FLUSH PRIVILEGES;"
 
       - name: Test App
         run: npm test user.test.js
