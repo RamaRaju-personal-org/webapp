@@ -44,7 +44,6 @@ jobs:
           sudo apt-get install -y curl
           sudo systemctl start mysql
           sudo systemctl status mysql
-          sudo mysql -u root -p root -e "CREATE DATABASE  restapi;"
 
 
       - name: Test App
@@ -93,7 +92,6 @@ jobs:
           sudo apt-get install -y curl
           sudo systemctl start mysql
           sudo systemctl status mysql
-          sudo mysql -u root -p root -e "CREATE DATABASE  restapi;"
 
 
       - name: Test App
