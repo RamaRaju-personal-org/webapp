@@ -7,99 +7,94 @@ on:
 
 jobs:
   build:
-    name: Compile check
+    name: Complie check
     runs-on: ubuntu-latest
 
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
+      
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '14'
+          node-version: 14 
 
       - name: Cache dependencies
         uses: actions/cache@v3
         with:
           path: ~/.npm
-          key: npm-deps-${{ hashFiles('**/package-lock.json') }}
+          key: npm-deps-${{ hashFiles('**/package-lock.json') }} 
 
       - name: Install dependencies
         run: npm install
 
       - name: Setup .env file
         run: |
-          echo "DB_USER=ram" >> .env
-          echo "DB_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}" >> .env
-          echo "DB_NAME=restapi" >> .env
-          echo "DB_HOST=127.0.0.1" >> .env
+          echo "DB_USER=${{ secrets.DB_USER }}" >> .env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+          echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
+          echo "DB_HOST=${{ secrets.DB_HOST }}" >> .env
           echo "PORT=${{ secrets.PORT }}" >> .env
-          echo "TOKEN_SECRET=${{ secrets.TOKEN_SECRET }}" >> .env
+          echo "TOKEN_SECRET=${{ secrets.TOKEN_SECRET}}" >> .env
 
-      - name: Install MySQL
+      - name: MySQL Setup
         run: |
           sudo apt-get update
-          sudo apt-get install -y mysql-server
+          sudo apt-get install -y curl
           sudo systemctl start mysql
+          sudo systemctl status mysql
+          sudo mysql -u root -p root -e "CREATE DATABASE  restapi;"
 
-      - name: Create Application Database and User
-        run: |
-          sudo mysql -e "CREATE DATABASE IF NOT EXISTS restapi;"
-          sudo mysql -e "CREATE USER 'ram'@'localhost' IDENTIFIED BY '${{ secrets.MYSQL_ROOT_PASSWORD }}';"
-          sudo mysql -e "GRANT ALL PRIVILEGES ON restapi.* TO 'ram'@'localhost';"
-          sudo mysql -e "FLUSH PRIVILEGES;"
-        env:
-          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
-
-      - name: Verify User Creation
-        run: |
-          sudo mysql -e "SELECT user, host FROM mysql.user WHERE user = 'ram';"
-
-      - name: Verify Database Creation
-        run: |
-          sudo mysql -e "SHOW DATABASES LIKE 'restapi';"
-
-      - name: Wait for MySQL
-        run: until mysqladmin ping -h "127.0.0.1" --silent; do sleep 1; done
 
       - name: Test App
         run: npm test healthz.test.js
 
-
+      # - name: Test failure 
+      #   run: exit 1
+  
+  
   test:
-    name: Integration test
+    name: integration test
     runs-on: ubuntu-latest
+
+    
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
+      
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 14
+          node-version: 14 
 
       - name: Cache dependencies
         uses: actions/cache@v3
         with:
           path: ~/.npm
-          key: npm-deps-${{ hashFiles('**/package-lock.json') }}
+          key: npm-deps-${{ hashFiles('**/package-lock.json') }} 
 
       - name: Install dependencies
         run: npm install
 
-      - name: Setup .env file (Repeat for Integration Tests)
+      - name: Setup .env file
         run: |
           echo "DB_USER=${{ secrets.DB_USER }}" >> .env
           echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
           echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
           echo "DB_HOST=${{ secrets.DB_HOST }}" >> .env
           echo "PORT=${{ secrets.PORT }}" >> .env
-          echo "TOKEN_SECRET=${{ secrets.TOKEN_SECRET }}" >> .env
+          echo "TOKEN_SECRET=${{ secrets.TOKEN_SECRET}}" >> .env
 
-      # Assuming MySQL setup remains valid from the 'build' job, you may not need to repeat MySQL setup here.
-      # If this job runs on a separate runner or needs its own MySQL setup, repeat the MySQL installation and configuration steps here.
+      - name: Configure MySQL
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y curl
+          sudo systemctl start mysql
+          sudo systemctl status mysql
+          sudo mysql -u root -p root -e "CREATE DATABASE  restapi;"
 
-      - name: Test App (Integration Tests)
+
+      - name: Test App
         run: npm test user.test.js
