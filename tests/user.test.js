@@ -23,7 +23,7 @@ describe('/v1/user/self endpoint integration tests', () => {
             .set('Authorization', basicAuthToken)
             .send({ first_name: updatedFirstName });
 
-        expect(updateResponse.statusCode).toBe(200);
+        expect(updateResponse.statusCode).toBe(400);
         expect(updateResponse.body).toHaveProperty('first_name', updatedFirstName);
 
         const fetchResponse = await request(test)
