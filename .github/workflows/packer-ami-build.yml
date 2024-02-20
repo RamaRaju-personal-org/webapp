@@ -1,0 +1,105 @@
+name: AMI creation
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  ami-creation:
+    name: build packer ami
+    runs-on: ubuntu-latest
+    
+    steps:
+    -  name: Checkout code
+       uses: actions/checkout@v3
+      
+    - name: Configure MySQL
+      run: |
+          sudo apt-get update
+          sudo systemctl start mysql
+          sudo systemctl status mysql
+          
+
+    # Setup .env file for application
+    # - name: Setup .env file
+    #   run: |
+    #     echo "DB_NAME=restapi" > .env
+    #     echo "DB_USER=${{ secrets.MYSQL_USER }}" >> .env
+    #     echo "DB_PASSWORD=${{ secrets.MYSQL_PASSWORD }}" >> .env
+    #     echo "DB_HOST=localhost" >> .env
+    #     echo "PORT=3307" >> .env
+    #     echo "TOKEN_SECRET=my-secret" >> .env
+
+    # Setup Node.js
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16'
+
+    # Install Dependencies
+    - name: Install Dependencies
+      run: npm install
+
+    # Run Integration Tests
+    - name: Run Integration Tests
+      run: npm test user.test.js
+
+    # delete node modules before zipping
+    - name : delete node modules
+      run: rm -rf node_modules
+
+    # Create Artifact
+    - name: Create Artifact
+      run: zip -r application.zip ./*
+
+    # Upload the Artifact
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: application-artifact
+        path: application.zip
+
+    
+    
+
+    # Setup Google Cloud
+    - name: Setup Google Cloud
+      uses: google-github-actions/setup-gcloud@v0.2.0
+      with:
+        service_account_key: ${{ secrets.GCP_SA_KEY }}
+        project_id: ${{ secrets.GCP_PROJECT_ID }}
+        export_default_credentials: true
+
+    # Setup Packer
+    - name: Setup Packer
+      uses: hashicorp/setup-packer@main
+      with:
+        packer-version: 'latest'
+
+    - name: List files in the root and /tmp directory
+      run: |
+           ls -lah
+           ls -lah /tmp
+
+    - name: Make scripts executable
+      run: |
+           chmod +x secure_mysql_installation.sh
+           chmod +x install_node.sh
+           chmod +x usergroup.sh
+           chmod +x nodeapp.sh
+           
+    - name: Copy scripts to /tmp directory
+      run: |
+           cp *.sh /tmp
+           
+    - name: List files in the /tmp directory
+      run: |
+            ls -lah /tmp
+
+    # Build Machine Image with Packer
+    - name: Build Machine Image with Packer
+      run: |
+        packer init .
+        ls -lah /tmp    
+        packer build  webapp-packer.pkr.hcl
