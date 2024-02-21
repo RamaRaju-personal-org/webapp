@@ -30,6 +30,25 @@ build {
     destination = "/tmp/application.zip"
   }
 
+  provisioner "file" {
+    source      = "secure_mysql_installation.sh"
+    destination = "/tmp/secure_mysql_installation.sh"
+  }
+
+  provisioner "file" {
+    source      = "install_node.sh"
+    destination = "/tmp/install_node.sh"
+  }
+
+  provisioner "file" {
+    source      = "usergroup.sh"
+    destination = "/tmp/usergroup.sh"
+  }
+
+  provisioner "file" {
+    source      = "nodeapp.sh"
+    destination = "/tmp/nodeapp.sh"
+  }
 
   provisioner "shell" {
     script          = "/tmp/secure_mysql_installation.sh"
