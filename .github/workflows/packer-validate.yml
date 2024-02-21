@@ -16,6 +16,8 @@ jobs:
 
       - name: Set up Packer
         uses: hashicorp/setup-packer@main
+        with:
+             packer-version: 'latest'
         
 
       - name: format & validate
