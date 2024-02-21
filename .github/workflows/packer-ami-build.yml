@@ -7,6 +7,8 @@ on:
 
 jobs:
   ami-creation:
+    if: github.repository == 'csye6225-ramaraju/webapp'
+
     name: build packer ami
     runs-on: ubuntu-latest
     
@@ -94,9 +96,9 @@ jobs:
     #        chmod +x usergroup.sh
     #        chmod +x nodeapp.sh
            
-    - name: Copy scripts to /tmp directory
-      run: |
-           cp *.sh /tmp
+    # - name: Copy scripts to /tmp directory
+    #   run: |
+    #        cp *.sh /tmp
            
     - name: List files in the /tmp directory
       run: |
