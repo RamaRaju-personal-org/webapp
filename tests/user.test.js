@@ -1,36 +1,52 @@
 const request = require('supertest');
-const test = require('../test'); 
+const app = require('../test'); // Make sure the path matches your project structure
 
 describe('/v1/user/self endpoint integration tests', () => {
-    const username = 'testuser';
+    const username = 'testuser@example.com';
     const password = 'testpassword';
     const basicAuthToken = 'Basic ' + Buffer.from(`${username}:${password}`).toString('base64');
 
-    it('Test 1 - Validate account exists', async () => {
-        const response = await request(test)
-            .get('/v1/user/self')
-            .set('Authorization', basicAuthToken);
+    it('Test 1 - Create an account, and using the GET call, validate account exists', async () => {
+        const newUser = {
+            id: '1',
+            username: 'testuser@example.com',
+            first_name: 'Test',
+            last_name: 'User'
+        };
 
-        expect(response.statusCode).toBe(200);
-        expect(response.body).toHaveProperty('username', username);
+        // Create the account
+        await request(app)
+            .post('/v1/user')
+            .send(newUser)
+            .expect(201, newUser);
+
+        // Validate the account exists
+        await request(app)
+            .get('/v1/user/self')
+            .set('Authorization', basicAuthToken)
+            .expect(200, newUser);
     });
 
-    it('Test 2 - Update the account and validate the account was updated', async () => {
+    it('Test 2 - Update the account and using the GET call, validate the account was updated', async () => {
         const updatedFirstName = 'UpdatedTest';
-        
-        let updateResponse = await request(test)
+
+        // Update the account
+        await request(app)
             .put('/v1/user/self')
             .set('Authorization', basicAuthToken)
-            .send({ first_name: updatedFirstName });
+            .send({ first_name: updatedFirstName })
+            .expect(200)
+            .expect((res) => {
+                expect(res.body.first_name).toBe(updatedFirstName);
+            });
 
-        expect(updateResponse.statusCode).toBe(200);
-        expect(updateResponse.body).toHaveProperty('first_name', updatedFirstName);
-
-        const fetchResponse = await request(test)
+        // Validate the account was updated
+        await request(app)
             .get('/v1/user/self')
-            .set('Authorization', basicAuthToken);
-
-        expect(fetchResponse.statusCode).toBe(200);
-        expect(fetchResponse.body).toHaveProperty('first_name', updatedFirstName);
+            .set('Authorization', basicAuthToken)
+            .expect(200)
+            .expect((res) => {
+                expect(res.body.first_name).toBe(updatedFirstName);
+            });
     });
 });

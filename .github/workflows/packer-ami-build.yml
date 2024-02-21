@@ -17,19 +17,15 @@ jobs:
     - name: Configure MySQL
       run: |
           sudo apt-get update
+          sudo apt-get install -y mysql-server
           sudo systemctl start mysql
           sudo systemctl status mysql
+          sudo mysql --user=root --password=root -e "CREATE DATABASE IF NOT EXISTS restapi;"
+          sudo mysql --user=root --password=root -e "SHOW DATABASES;"
+          sudo mysql --user=root --password=root -e "USE restapi; CREATE TABLE IF NOT EXISTS Users (id CHAR(36) BINARY PRIMARY KEY, firstName VARCHAR(255) NOT NULL, lastName VARCHAR(255) NOT NULL, userName VARCHAR(255) NOT NULL UNIQUE, password VARCHAR(255) NOT NULL, createdAt DATETIME NOT NULL, updatedAt DATETIME NOT NULL);"
           
 
-    # Setup .env file for application
-    # - name: Setup .env file
-    #   run: |
-    #     echo "DB_NAME=restapi" > .env
-    #     echo "DB_USER=${{ secrets.MYSQL_USER }}" >> .env
-    #     echo "DB_PASSWORD=${{ secrets.MYSQL_PASSWORD }}" >> .env
-    #     echo "DB_HOST=localhost" >> .env
-    #     echo "PORT=3307" >> .env
-    #     echo "TOKEN_SECRET=my-secret" >> .env
+    
 
     # Setup Node.js
     - name: Setup Node.js
@@ -43,7 +39,8 @@ jobs:
 
     # Run Integration Tests
     - name: Run Integration Tests
-      run: npm test user.test.js
+      run:  npm test user.test.js
+      
 
     # delete node modules before zipping
     - name : delete node modules
@@ -59,6 +56,14 @@ jobs:
       with:
         name: application-artifact
         path: application.zip
+    
+    # - name: Upload Artifact
+    #   uses: actions/upload-artifact@v3
+    #   with:
+    #     name: installation-scripts
+    #     path: |
+    #           ./*.sh
+
 
     
     
@@ -82,12 +87,12 @@ jobs:
            ls -lah
            ls -lah /tmp
 
-    - name: Make scripts executable
-      run: |
-           chmod +x secure_mysql_installation.sh
-           chmod +x install_node.sh
-           chmod +x usergroup.sh
-           chmod +x nodeapp.sh
+    # - name: Make scripts executable
+    #   run: |
+    #        chmod +x secure_mysql_installation.sh
+    #        chmod +x install_node.sh
+    #        chmod +x usergroup.sh
+    #        chmod +x nodeapp.sh
            
     - name: Copy scripts to /tmp directory
       run: |
@@ -102,4 +107,4 @@ jobs:
       run: |
         packer init .
         ls -lah /tmp    
-        packer build  webapp-packer.pkr.hcl
+        packer build  -var 'project_id=${{ secrets.GCP_PROJECT_ID }}' webapp-packer.pkr.hcl

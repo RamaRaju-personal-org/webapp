@@ -1,0 +1,27 @@
+name: Packer Format and Validate
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  packer_validate:
+    name: Packer Format and Validate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Packer
+        uses: hashicorp/setup-packer@v1
+        
+
+      - name: format & validate
+        run: |
+             packer fmt webapp-packer.pkr.hcl
+             packer validate webapp-packer.pkr.hcl
+        
+
+     
