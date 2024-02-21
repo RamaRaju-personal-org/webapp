@@ -82,12 +82,12 @@ jobs:
            ls -lah
            ls -lah /tmp
 
-    - name: Make scripts executable
-      run: |
-           chmod +x secure_mysql_installation.sh
-           chmod +x install_node.sh
-           chmod +x usergroup.sh
-           chmod +x nodeapp.sh
+    # - name: Make scripts executable
+    #   run: |
+    #        chmod +x secure_mysql_installation.sh
+    #        chmod +x install_node.sh
+    #        chmod +x usergroup.sh
+    #        chmod +x nodeapp.sh
            
     - name: Copy scripts to /tmp directory
       run: |
