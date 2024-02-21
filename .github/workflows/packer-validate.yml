@@ -18,6 +18,13 @@ jobs:
         run: |
              zip -r application.zip ./*
 
+      - name: Print current working directory
+        run: pwd
+
+      - name: List files in the root directory
+        run: ls -al
+
+
       - name: Set up Packer
         uses: hashicorp/setup-packer@main
         with:
