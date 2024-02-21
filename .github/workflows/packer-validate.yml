@@ -25,6 +25,7 @@ jobs:
         run: |
              ls -al
              ls /
+             ls /tmp
 
 
       - name: Set up Packer
