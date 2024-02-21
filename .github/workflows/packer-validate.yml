@@ -25,6 +25,7 @@ jobs:
              packer init webapp-packer.pkr.hcl
              packer fmt webapp-packer.pkr.hcl
              packer validate webapp-packer.pkr.hcl
-        
+        env:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
 
      
