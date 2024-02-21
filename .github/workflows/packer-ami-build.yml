@@ -7,7 +7,7 @@ on:
 
 jobs:
   ami-creation:
-    if: github.repository == 'csye6225-ramaraju/webapp'
+    if: github.repository == 'csye6225-ramaraju/webapp' # action exec only if code is pushed to org repo main branch
 
     name: build packer ami
     runs-on: ubuntu-latest
@@ -59,16 +59,7 @@ jobs:
         name: application-artifact
         path: application.zip
     
-    # - name: Upload Artifact
-    #   uses: actions/upload-artifact@v3
-    #   with:
-    #     name: installation-scripts
-    #     path: |
-    #           ./*.sh
 
-
-    
-    
 
     # Setup Google Cloud
     - name: Setup Google Cloud
@@ -89,16 +80,6 @@ jobs:
            ls -lah
            ls -lah /tmp
 
-    # - name: Make scripts executable
-    #   run: |
-    #        chmod +x secure_mysql_installation.sh
-    #        chmod +x install_node.sh
-    #        chmod +x usergroup.sh
-    #        chmod +x nodeapp.sh
-           
-    # - name: Copy scripts to /tmp directory
-    #   run: |
-    #        cp *.sh /tmp
            
     - name: List files in the /tmp directory
       run: |

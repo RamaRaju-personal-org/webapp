@@ -1,6 +1,5 @@
 const request = require('supertest');
-const app = require('../test'); // Make sure the path matches your project structure
-
+const app = require('../test'); 
 describe('/v1/user/self endpoint integration tests', () => {
     const username = 'testuser@example.com';
     const password = 'testpassword';
