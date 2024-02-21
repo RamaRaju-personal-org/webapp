@@ -2,7 +2,7 @@ packer {
   required_plugins {
     googlecompute = {
       source  = "github.com/hashicorp/googlecompute"
-      version = " >= 1.1.4 "
+      version = " >= 1.0.0 "
     }
   }
 }
@@ -26,27 +26,27 @@ build {
   sources = ["source.googlecompute.centos"]
 
   provisioner "file" {
-    source      = "/home/runner/work/webapp/webapp/application.zip"
+    source      = "application.zip"
     destination = "/tmp/application.zip"
   }
 
   provisioner "file" {
-    source      = "/home/runner/work/webapp/webapp/secure_mysql_installation.sh"
+    source      = "secure_mysql_installation.sh"
     destination = "/tmp/secure_mysql_installation.sh"
   }
 
   provisioner "file" {
-    source      = "/home/runner/work/webapp/webapp/install_node.sh"
+    source      = "install_node.sh"
     destination = "/tmp/install_node.sh"
   }
 
   provisioner "file" {
-    source      = "/home/runner/work/webapp/webapp/usergroup.sh"
+    source      = "usergroup.sh"
     destination = "/tmp/usergroup.sh"
   }
 
   provisioner "file" {
-    source      = "/home/runner/work/webapp/webapp/nodeapp.sh"
+    source      = "nodeapp.sh"
     destination = "/tmp/nodeapp.sh"
   }
 
