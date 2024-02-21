@@ -26,27 +26,27 @@ build {
   sources = ["source.googlecompute.centos"]
 
   provisioner "file" {
-    source      = "application.zip"
+    source      = "/home/runner/work/webapp/webapp/application.zip"
     destination = "/tmp/application.zip"
   }
 
   provisioner "file" {
-    source      = "secure_mysql_installation.sh"
+    source      = "/home/runner/work/webapp/webapp/secure_mysql_installation.sh"
     destination = "/tmp/secure_mysql_installation.sh"
   }
 
   provisioner "file" {
-    source      = "install_node.sh"
+    source      = "/home/runner/work/webapp/webapp/install_node.sh"
     destination = "/tmp/install_node.sh"
   }
 
   provisioner "file" {
-    source      = "usergroup.sh"
+    source      = "/home/runner/work/webapp/webapp/usergroup.sh"
     destination = "/tmp/usergroup.sh"
   }
 
   provisioner "file" {
-    source      = "nodeapp.sh"
+    source      = "/home/runner/work/webapp/webapp/nodeapp.sh"
     destination = "/tmp/nodeapp.sh"
   }
 
