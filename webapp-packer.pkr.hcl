@@ -9,6 +9,7 @@ packer {
 
 variable "project_id" {
   type    = string
+  default = "csye6225-413808"
 }
 
 
