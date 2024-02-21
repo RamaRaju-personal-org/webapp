@@ -22,6 +22,7 @@ jobs:
 
       - name: format & validate
         run: |
+             packer init webapp-packer.pkr.hcl
              packer fmt webapp-packer.pkr.hcl
              packer validate webapp-packer.pkr.hcl
         
