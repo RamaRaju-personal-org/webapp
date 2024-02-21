@@ -22,7 +22,9 @@ jobs:
         run: pwd
 
       - name: List files in the root directory
-        run: ls -al
+        run: |
+             ls -al
+             ls /
 
 
       - name: Set up Packer
