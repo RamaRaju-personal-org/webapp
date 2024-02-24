@@ -13,7 +13,7 @@ variable "project_id" {
 
 
 
-source "googlecompute" "centos" {
+source   "googlecompute" "centos" {
   project_id          = var.project_id
   zone                = "us-central1-a"
   source_image_family = "centos-stream-8"
