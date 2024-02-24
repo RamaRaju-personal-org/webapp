@@ -25,7 +25,7 @@ build {
   sources = ["source.googlecompute.centos"]
 
   provisioner "file" {
-    source      = "application"
+    source      = "application.zip"
     destination = "/tmp/application.zip"
   }
 
