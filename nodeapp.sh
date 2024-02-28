@@ -1,4 +1,5 @@
 #!/bin/bash  
+# sudo chmod 744 /tmp/nodeapp.service
 
 sudo cp /opt/csye6225/nodeapp.service /etc/systemd/system/
 

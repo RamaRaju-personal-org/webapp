@@ -32,10 +32,6 @@ build {
 
 
   provisioner "shell" {
-    script = "secure_mysql_installation.sh"
-  }
-
-  provisioner "shell" {
     script = "install_node.sh"
   }
 
