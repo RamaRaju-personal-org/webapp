@@ -1,4 +1,4 @@
-# Initialize Node...
+# Initialize Node. 
 ```bash
 npm init
 ```
