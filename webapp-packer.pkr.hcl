@@ -40,6 +40,15 @@ build {
   }
 
   provisioner "shell" {
+    script = "ops_agent.sh"
+  }
+
+  provisioner "shell" {
+    script = "ops_agent_config.sh"
+  }
+
+  provisioner "shell" {
     script = "nodeapp.sh"
   }
+
 }

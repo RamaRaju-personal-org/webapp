@@ -2,6 +2,8 @@ require('dotenv').config();
 const express = require("express");
 const bodyParser = require("body-parser");
 const app = express();
+const logger = require('./logger'); 
+
 
 // Your routes and middleware
 const mainRoute = require('./api-routes/mainRoute');
@@ -10,8 +12,15 @@ const { initializeDatabase } = require('./models/mysql-db-connect');
 app.use(bodyParser.json());
 app.use('/', mainRoute);
 
+// Logging middleware for incoming requests
+app.use((req, res, next) => {
+  logger.debug({message: 'Request received', method: req.method, url: req.originalUrl});
+  next();
+});
+
+// Centralized error handling
 app.use((err, req, res, next) => {
-  console.error(err);
+  logger.error({message: 'Unhandled exception', error: err.message});
   res.status(503).json({ error: 'Service Unavailable' });
 });
 
@@ -20,10 +29,10 @@ function startServer() {
   const PORT = process.env.PORT || 3307;
   initializeDatabase().then(() => {
     app.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
+      logger.info({message: `Server is running on port ${PORT}`});
     });
   }).catch(error => {
-    console.error('Error initializing database:', error);
+    logger.error({message: 'Error initializing database', error: error.toString()});
   });
 }
 
