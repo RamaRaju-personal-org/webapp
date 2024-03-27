@@ -5,6 +5,7 @@ const app = express();
 const logger = require('./logger'); 
 
 
+
 // Your routes and middleware
 const mainRoute = require('./api-routes/mainRoute');
 const { initializeDatabase } = require('./models/mysql-db-connect');
@@ -14,15 +15,19 @@ app.use('/', mainRoute);
 
 // Logging middleware for incoming requests
 app.use((req, res, next) => {
-  logger.debug({message: 'Request received', method: req.method, url: req.originalUrl});
+  // logger.debug({message: 'Request received', method: req.method, url: req.originalUrl});
   next();
 });
 
 // Centralized error handling
 app.use((err, req, res, next) => {
-  logger.error({message: 'Unhandled exception', error: err.message});
+  // logger.error({message: 'Unhandled exception', error: err.message});
   res.status(503).json({ error: 'Service Unavailable' });
 });
+
+
+
+
 
 // This function starts the server and is called only when this file is run directly
 function startServer() {
