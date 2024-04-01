@@ -31,7 +31,7 @@ app.use((err, req, res, next) => {
 
 // This function starts the server and is called only when this file is run directly
 function startServer() {
-  const PORT = process.env.PORT || 80;
+  const PORT = process.env.PORT || 3307;
   initializeDatabase().then(() => {
     app.listen(PORT, () => {
       logger.info({message: `Server is running on port ${PORT}`});
