@@ -15,7 +15,7 @@ env:
 
 jobs:
   ami-creation:
-    if: github.repository == 'csye6225-ramaraju/webapp' # action exec only if code is pushed to org repo main branch
+    # if: github.repository == 'csye6225-ramaraju/webapp' # action exec only if code is pushed to org repo main branch
 
     name: build packer ami
     runs-on: ubuntu-latest
