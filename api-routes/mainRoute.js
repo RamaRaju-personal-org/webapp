@@ -5,6 +5,6 @@ const healthzRoute = require('./routes/healthz');
 const userRoute = require('./routes/user'); // Import the user route
 
 mainRoute.use('/healthz', healthzRoute);
-mainRoute.use('/v1/user', userRoute); // Use the user route for the specified path
+mainRoute.use('/v2/user', userRoute); // Use the user route for the specified path
 
 module.exports = mainRoute;
