@@ -1,3 +1,6 @@
+# Project Diagram
+![flow drawio](https://github.com/RamaRaju-vj/webapp/assets/144737522/c3da665b-1886-421f-a2f4-5ff5b782a8e5)
+
 # Initialize Node..
 ```bash
 npm init
